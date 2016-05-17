@@ -1,28 +1,16 @@
 import json
-import os.path as path
 
-# Get project settings
-settings_f_name = path.join(path.dirname(path.realpath(__file__)), '..', 'SETTINGS.json')
+from common import clean_words, settings_file, split_line
 
 
-def clean_words(words):
-    for w in words:
-        w = w.strip('".\'?)(:,!\\[]=/')
-        if w.endswith('\'s'):
-            w = w[:len(w)-2]
-        yield w
-
-
-with open(settings_f_name) as settings_f:
+with open(settings_file()) as settings_f:
     settings = json.load(settings_f)
     datasets = ['train', 'test', 'validate']
     words = set()
     for ds in datasets:
-        with open(settings['train']) as in_f:
+        with open(settings[ds]) as in_f:
             for line in in_f:
-                words.update(clean_words(line.split('\t')[3].strip().lower().split(' ')))
-
-    words.remove('')
+                words.update(clean_words(split_line(line)))
 
     vocabulary = list(words)
     vocabulary.sort()
